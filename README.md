@@ -37,7 +37,7 @@ The hub can communicate with an MQTT server. We use the following topics:
 
 1.  Install Arduino IDE
 2.  Go to Arduino IDE preferences; set `Additional Board Manager URLs` to `https://dl.espressif.com/dl/package_esp32_index.json`
-3.  Go to `Tools` / `Board` / `Board Manager...`, search for `esp32`, select result and click `Install`
+3.  Go to `Tools` / `Board` / `Board Manager...`, search for `esp32`, select version 1.0.1 (known good version, there are issues with other versions) and click `Install`
 
 ## Compiling the code
 
