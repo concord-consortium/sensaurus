@@ -37,14 +37,15 @@ The hub can communicate with an MQTT server. We use the following topics:
 
 1.  Install Arduino IDE
 2.  Go to Arduino IDE preferences; set `Additional Board Manager URLs` to `https://dl.espressif.com/dl/package_esp32_index.json`
-3.  Go to `Tools` / `Board` / `Board Manager...`, search for `esp32`, select version 1.0.1 (known good version, there are issues with other versions) and click `Install`
+3.  Go to `Tools` / `Board` / `Board Manager...`, search for `esp32`, select result and click `Install`
+4.  Selection version 1.0.1 of the ESP32 core/board files (in the board manager).
 
 ## Compiling the code
 
 1.  Go to Arduino IDE preferences and set the `Sketchbook location` to the `sensaurus` folder. This allows the IDE to find the required libraries.
 2.  Restart the Arduino IDE.
 3.  Copy `sample_settings.h` to `settings.h` and edit it as needed. You'll need MQTT server information and WiFi network information.
-4.  If you are enabling AWS MQTT and BLE at the same time, you'll need to change the partitions for the program to fit on the ESP32. 
+4.  If you are enabling AWS MQTT and BLE at the same time, you'll need to change the partitions for the program to fit on the ESP32.
     Instructions for this are at the end of this document.
 5.  Select `DOIT ESP32 DEVKIT V1` from board list (or other board type if needed).
 6.  Press Ctrl-R (or Command-R) to compile. It may take a little while given the various library dependencies.
@@ -59,15 +60,30 @@ The hub can communicate with an MQTT server. We use the following topics:
 
 ## Status LEDs
 
-The yellow LEDs indicate which plugs have devices connected. The yellow LED is turned on when meta-data is received from a device. 
-It is turned off if the device fails to respond to two consecutive polling messages.
+If startup fails, the blue LED will blink along with one of the yellow LEDs:
 
-The blue LED indicates the current network connection status. It has a couple modes:
+*   Blinking yellow 1 and blue: unable to connect to WiFi network (check WiFi name and password).
+*   Blinking yellow 2 and blue: network time update failed (check that WiFi network has internet access).
+*   Blinking yellow 3 and blue: unable to connect to MQTT server (check that server name is correct).
+*   Blinking yellow 4 and blue: unable to subscribe to MQTT channels (check that hub ID is correct and server is configured).
 
-*   If there is an error connecting to the WiFi network or MQTT server on startup, it will blink 1 second on, 1 second off indefinitely.
-    In this case, you'll need to change the WiFi settings (currently in the settings.h file) and restart the hub. This currently applies
-    just to the AWS MQTT mode. We'll unify this with vanilla MQTT operation in the future.
-*   During operation, the blue LED will make a brief blink each time an MQTT message is successfully published.
+After startup a succesful startup, the blue LED will be lit (with a medium brightness) and the yellow LEDs will indicate
+which plugs have devices connected. The yellow LED is turned on when meta-data is received from a device.
+It is turned off if the device fails to respond to two consecutive polling messages (e.g. when it is unplugged).
+
+During normal operation, the small blue LED on the ESP32 will blink make a brief blink each time an MQTT message is successfully published.
+
+If the hub loses the WiFi connection during operation, the large blue LED will blink until the WiFi connection is restored. (It will attempt
+to reconnect every 15 seconds.)
+
+## Troubleshooting
+
+If you have trouble compiling:
+
+*   Make sure you have selected the correct board (`DOIT ESP32 DEVKIT V1`)
+*   Make sure you have selected the correct version of the ESP32 core/board libraries (1.0.1).
+*   Make sure you are using a recent Arduino IDE (we use 1.8.10).
+*   Make sure you have prepared the `settings.h` file as described above.
 
 ## Running the hub simulator
 
@@ -161,15 +177,15 @@ We use the follow ESP32 pins:
 *   device connection LEDs: 16, 17, 18, 19, 21, 22
 *   device serial data: 23, 25, 26, 27, 32, 33
 
-We communicate with the devices using 38400 baud half-duplex serial. The hub polls each device and the device has 50 ms to reply. 
+We communicate with the devices using 38400 baud half-duplex serial. The hub polls each device and the device has 50 ms to reply.
 (This allows about 190 bytes of reply data.)
 
 ## Uploading Device Code
 
-To upload code to one of the prototype devices, you'll need an FTDI board 
+To upload code to one of the prototype devices, you'll need an FTDI board
 (e.g. [https://www.sparkfun.com/products/9716](https://www.sparkfun.com/products/9716)).
 
-1.  Install FTDI drivers if needed. 
+1.  Install FTDI drivers if needed.
 2.  Connect the FTDI device to the Arduino Pro Mini with the correct orientation (possibly upside down). GND should connect to GND.
 3.  In the Arduino IDE, select `Arduino Pro or Pro Mini` from the board menu.
 4.  Select the serial port that shows up after connecting the FTDI board to your computer.
